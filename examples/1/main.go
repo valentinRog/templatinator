@@ -64,6 +64,7 @@ func main() {
 					SetAttr("hx-post", "/add").
 					SetAttr("hx-target", "#todos-list").
 					SetAttr("hx-swap", "innerHTML").
+					SetAttr("hx-on::after-request", "this.reset()").
 					AppendChildren(
 						html.Input().SetAttr("type", "text").SetAttr("required", "").SetAttr("name", "todo"),
 						html.Input().SetAttr("type", "submit").SetAttr("value", "add todo"),
