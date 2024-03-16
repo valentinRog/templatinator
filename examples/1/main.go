@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
 
 	"net/http"
 
@@ -11,14 +12,28 @@ import (
 )
 
 var html templatinator.Factory
-var todos = []string{"un truc"}
+
+var gid uint64 = 0
+var todos = map[uint64]string{}
+
+func addTodo(todo string) {
+	gid += 1
+	todos[gid] = todo
+}
 
 func renderTodos() tag.Tag {
 	return html.Template().AppendChildren(
 		func() []tag.Tag {
 			var a []tag.Tag
-			for _, todo := range todos {
-				e := html.Li().AppendChildren(html.Text().Set(todo))
+			for id, todo := range todos {
+				e := html.Li().AppendChildren(
+					html.Text().Set(todo),
+					html.Button().
+						SetAttr("hx-post", fmt.Sprintf("/delete?id=%d", id)).
+						SetAttr("hx-target", "#todos-list").
+						SetAttr("hx-swap", "innerHTML").
+						AppendChildren(html.Text().Set("delete")),
+				)
 				a = append(a, e)
 			}
 			return a
@@ -55,8 +70,17 @@ func main() {
 	})
 
 	http.HandleFunc("/add", func(w http.ResponseWriter, r *http.Request) {
-		todo := r.FormValue("todo")
-		todos = append(todos, todo)
+		addTodo(r.FormValue("todo"))
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, err := fmt.Fprint(w, renderTodos().Stringify())
+		if err != nil {
+			log.Fatal(err)
+		}
+	})
+
+	http.HandleFunc("/delete", func(w http.ResponseWriter, r *http.Request) {
+		id, _ := strconv.ParseUint(r.URL.Query().Get("id"), 10, 64)
+		delete(todos, id)
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_, err := fmt.Fprint(w, renderTodos().Stringify())
 		if err != nil {
