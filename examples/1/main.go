@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 
 	"net/http"
@@ -13,8 +14,8 @@ import (
 
 var html templatinator.Factory
 
-var gid uint64 = 0
-var todos = map[uint64]string{}
+var gid int = 0
+var todos = map[int]string{}
 
 func addTodo(todo string) {
 	gid += 1
@@ -24,10 +25,19 @@ func addTodo(todo string) {
 func renderTodos() tag.Tag {
 	return html.Template().AppendChildren(
 		func() []tag.Tag {
+			var sortedIds []int = func() []int {
+				var a []int
+				for id := range todos {
+					a = append(a, id)
+				}
+				sort.Ints(a)
+				return a
+			}()
+
 			var a []tag.Tag
-			for id, todo := range todos {
+			for _, id := range sortedIds {
 				e := html.Li().AppendChildren(
-					html.Text().Set(todo),
+					html.Text().Set(todos[id]),
 					html.Button().
 						SetAttr("hx-post", fmt.Sprintf("/delete?id=%d", id)).
 						SetAttr("hx-target", "#todos-list").
@@ -46,7 +56,6 @@ func main() {
 		content := html.Html().AppendChildren(
 			html.Head().AppendChildren(
 				html.Title().AppendChildren(html.Text().Set("My todo-list")),
-				html.Link().SetAttr("rel", "stylesheet").SetAttr("href", "https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"),
 				html.Script().SetAttr("src", "https://unpkg.com/htmx.org@1.9.11"),
 			),
 			html.Body().AppendChildren(
@@ -79,8 +88,8 @@ func main() {
 	})
 
 	http.HandleFunc("/delete", func(w http.ResponseWriter, r *http.Request) {
-		id, _ := strconv.ParseUint(r.URL.Query().Get("id"), 10, 64)
-		delete(todos, id)
+		id, _ := strconv.ParseInt(r.URL.Query().Get("id"), 10, 64)
+		delete(todos, int(id))
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_, err := fmt.Fprint(w, renderTodos().Stringify())
 		if err != nil {
