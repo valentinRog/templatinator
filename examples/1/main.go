@@ -22,20 +22,20 @@ func addTodo(todo string) {
 	todos[gid] = todo
 }
 
+func getSortedTodosId() []int {
+	var a []int
+	for id := range todos {
+		a = append(a, id)
+	}
+	sort.Ints(a)
+	return a
+}
+
 func renderTodos() tag.Tag {
 	return html.Template().AppendChildren(
 		func() []tag.Tag {
-			var sortedIds []int = func() []int {
-				var a []int
-				for id := range todos {
-					a = append(a, id)
-				}
-				sort.Ints(a)
-				return a
-			}()
-
 			var a []tag.Tag
-			for _, id := range sortedIds {
+			for _, id := range getSortedTodosId() {
 				e := html.Li().AppendChildren(
 					html.Div().SetAttr("id", fmt.Sprintf("todo-%d", id)).AppendChildren(
 						html.Text().Set(todos[id]),
