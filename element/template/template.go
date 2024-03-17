@@ -15,5 +15,5 @@ func New() *Template {
 }
 
 func (e *Template) Stringify() string {
-	return children.Utils[*Template]{Children: &e.Children}.String()
+	return children.CreateUtils(&e.Children).String()
 }

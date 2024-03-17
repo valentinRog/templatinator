@@ -22,6 +22,11 @@ func New(name string) *Parentable {
 }
 
 func (e *Parentable) Stringify() string {
-	childrenString := children.Utils[*Parentable]{Children: &e.Children}.String()
-	return fmt.Sprintf("<%s %s>%s</%s>", e.GetTagName(), e.Attributes.String(), childrenString, e.GetTagName())
+	return fmt.Sprintf(
+		"<%s %s>%s</%s>",
+		e.GetTagName(),
+		attributes.CreateUtils(&e.Attributes).String(),
+		children.CreateUtils(&e.Children).String(),
+		e.GetTagName(),
+	)
 }

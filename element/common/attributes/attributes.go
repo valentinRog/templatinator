@@ -3,7 +3,6 @@ package attributes
 import (
 	"fmt"
 	"github.com/valentinrog/templatinator/tag"
-	"strings"
 )
 
 type Attributes[T tag.Tag] struct {
@@ -20,11 +19,7 @@ func (e *Attributes[T]) SetAttr(k, v string) T {
 	return e.self
 }
 
-func (e *Attributes[T]) String() string {
-	sb := strings.Builder{}
-	for k, v := range e.attributes {
-		sb.WriteRune(' ')
-		sb.WriteString(fmt.Sprintf("%s=\"%s\"", k, v))
-	}
-	return sb.String()
+func (e *Attributes[T]) AddClass(s string) T {
+	e.attributes["class"] += fmt.Sprintf(" %s", s)
+	return e.self
 }

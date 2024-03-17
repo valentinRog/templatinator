@@ -6,12 +6,16 @@ import (
 )
 
 type Utils[T tag.Tag] struct {
-	Children *Children[T]
+	children *Children[T]
+}
+
+func CreateUtils[T tag.Tag](children *Children[T]) Utils[T] {
+	return Utils[T]{children: children}
 }
 
 func (e Utils[T]) String() string {
 	sb := strings.Builder{}
-	for _, c := range e.Children.children {
+	for _, c := range e.children.children {
 		sb.WriteString(c.Stringify())
 	}
 	return sb.String()

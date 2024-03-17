@@ -19,5 +19,5 @@ func New(name string) *SelfClosing {
 }
 
 func (e *SelfClosing) Stringify() string {
-	return fmt.Sprintf("<%s %s />", e.GetTagName(), e.Attributes.String())
+	return fmt.Sprintf("<%s %s />", e.GetTagName(), attributes.CreateUtils(&e.Attributes).String())
 }
