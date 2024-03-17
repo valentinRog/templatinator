@@ -82,3 +82,7 @@ func (Factory) Button() *parentable.Parentable {
 func (Factory) Form() *parentable.Parentable {
 	return parentable.New("form")
 }
+
+func (Factory) H1() *parentable.Parentable {
+	return parentable.New("h1")
+}
